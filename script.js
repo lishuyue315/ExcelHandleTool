@@ -36,10 +36,28 @@ function processFile() {
       for (const ken in kenMap) {
         const list = kenMap[ken];
         const total = list.reduce((sum, item) => sum + item.count, 0);
+  
+        // 排序
         list.sort((a, b) => b.count - a.count);
+  
+        let lastCount = null;
+        let lastRank = 0;
+        let currentIndex = 1;
+  
         list.forEach((item, index) => {
+          if (item.count === lastCount) {
+            item.rank = lastRank;
+          } else {
+            item.rank = currentIndex;
+            lastRank = currentIndex;
+            lastCount = item.count;
+          }
+          currentIndex++;
+        });
+  
+        list.forEach(item => {
           const ratio = (item.count / total * 100).toFixed(2) + "%";
-          output.push([ken, item.cho, item.count, ratio, index + 1]);
+          output.push([ken, item.cho, item.count, ratio, item.rank]);
         });
       }
   
