@@ -2,14 +2,37 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Excel 分析ツール</title>
+  <title>坊ちゃんの熾天使の香炉</title>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="script.js" defer></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h1>Excel 分析ツール</h1>
-  <input type="file" id="fileInput" />
-  <button onclick="processFile()">処理してダウンロード</button>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-  <script src="script.js"></script>
+  <!-- Header -->
+  <div class="bg-white shadow-lg rounded-2xl p-6 w-full max-w-xl text-center">
+    <div class="flex flex-col items-center space-y-4">
+      <!-- Avatar -->
+      <img src="./avatar.jpeg" alt="avatar" class="w-24 h-24 rounded-full shadow-md border-4 border-indigo-300">
+      <!-- Title -->
+      <h1 class="text-2xl font-bold text-indigo-700">坊ちゃんの熾天使の香炉</h1>
+      <p class="text-gray-600">Excelで県・町データを処理して、新しい分析ファイルを生成します。</p>
+    </div>
+
+    <!-- Upload Area -->
+    <div class="mt-6">
+      <input type="file" id="fileInput" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+        file:rounded-full file:border-0 file:text-sm file:font-semibold
+        file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+    </div>
+
+    <!-- Button -->
+    <div class="mt-4">
+      <button onclick="processFile()" class="bg-indigo-600 text-white px-6 py-2 rounded-full shadow hover:bg-indigo-700 transition">
+        処理してダウンロード
+      </button>
+    </div>
+  </div>
+
 </body>
 </html>
