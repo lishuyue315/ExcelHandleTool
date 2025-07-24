@@ -9,8 +9,10 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
 
+  <div class="flex flex-col lg:flex-row items-center justify-center gap-8 w-full max-w-6xl">
+
   <!-- Header -->
-  <div class="bg-white shadow-lg rounded-2xl p-6 w-full max-w-xl text-center">
+  <div class="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md text-center">
     <div class="flex flex-col items-center space-y-4">
       <!-- Avatar -->
       <img src="./avatar.jpeg" alt="avatar" class="w-24 h-24 rounded-full shadow-md border-4 border-indigo-300">
@@ -35,42 +37,46 @@
   </div>
 
   <!-- 新功能：E開頭統計ツール -->
-<div class="mt-12 w-full max-w-xl bg-white rounded-2xl shadow p-6">
-  <h2 class="text-xl font-semibold text-green-700 flex items-center gap-2 mb-4">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M9 17v-6h13v6M9 13h13m-4 0v-2a2 2 0 10-4 0v2m4 0v2a2 2 0 004 0v-2m-8 0H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v6a2 2 0 01-2 2H9z" />
-    </svg>
-    E 開頭の件数集計ツール
-  </h2>
-
-  <!-- 上传按钮 -->
-  <input type="file" id="eStatsInput" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-    file:rounded-full file:border-0 file:text-sm file:font-semibold
-    file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
-
-  <!-- 执行按钮 -->
-  <button onclick="analyzeEStats()" class="w-full bg-green-600 text-white py-2 px-4 rounded-full hover:bg-green-700 transition font-semibold">
-    集計実行して表示
-  </button>
-
-  <!-- 展示区域 -->
-  <div id="eStatsResult" class="mt-6 hidden space-y-3 text-sm text-gray-800">
-    <div class="flex justify-between border-b pb-1">
-      <span>✅ <strong>E 番号件数</strong></span>
-      <span id="totalECount" class="font-bold text-green-600"></span>
+  <div class="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md text-center">
+    <div class="flex flex-col items-center space-y-4">
+      <!-- Avatar -->
+      <img src="./jiushu.jpeg" alt="avatar" class="w-24 h-24 rounded-full shadow-md border-4 border-green-300">
+      <!-- Title -->
+      <h1 class="text-2xl font-bold text-green-700">ヤキモチちゃんのリデンプション</h1>
+      <p class="text-gray-600">E始まりのAWBと大阪住所を使った件数の集計ツールです。</p>
     </div>
-    <div class="flex justify-between border-b pb-1">
-      <span>🏠 <strong>Osaka 件数</strong></span>
-      <span id="osakaECount" class="font-bold text-green-600"></span>
+
+    <!-- 上传按钮 -->
+    <div class="mt-6">
+      <input type="file" id="eStatsInput" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+        file:rounded-full file:border-0 file:text-sm file:font-semibold
+        file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
     </div>
-    <div class="flex justify-between pt-2 text-lg font-bold text-indigo-700">
-      <span>🧮 その以外</span>
-      <span id="diffCount"></span>
+
+    <!-- 执行按钮 -->
+    <div class="mt-4">
+      <button onclick="analyzeEStats()" class="bg-green-600 text-white px-6 py-2 rounded-full shadow hover:bg-green-700 transition font-semibold">
+        集計実行して表示
+      </button>
+    </div>
+
+    <!-- 展示区域 -->
+    <div id="eStatsResult" class="mt-6 hidden text-left space-y-3 text-sm text-gray-800">
+      <div class="flex justify-between border-b pb-1">
+        <span>✅ <strong>E 番号件数</strong></span>
+        <span id="totalECount" class="font-bold text-green-600"></span>
+      </div>
+      <div class="flex justify-between border-b pb-1">
+        <span>🏠 <strong>Osaka 件数</strong></span>
+        <span id="osakaECount" class="font-bold text-green-600"></span>
+      </div>
+      <div class="flex justify-between pt-2 text-lg font-bold text-indigo-700">
+        <span>🧮 その以外</span>
+        <span id="diffCount"></span>
+      </div>
     </div>
   </div>
 </div>
-
 
 </body>
 </html>
