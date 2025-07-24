@@ -70,3 +70,41 @@ function processFile() {
     reader.readAsArrayBuffer(file);
   }
   
+
+  function analyzeEStats() {
+    const input = document.getElementById("eStatsInput");
+    const file = input.files[0];
+    if (!file) return alert("ファイルを選択してください。");
+  
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" }); // header: true by default
+  
+      let totalE = 0;
+      let osakaE = 0;
+  
+      for (const row of json) {
+        const airwayNo = String(row["HOUSE AIR WAYBILL NO."] || "").trim();
+        const address = String(row["輸入者住所"] || "").trim();
+  
+        if (airwayNo.startsWith("E")) {
+          totalE++;
+          if (address.startsWith("Osaka")) {
+            osakaE++;
+          }
+        }
+      }
+  
+      // 填入结果
+      document.getElementById("totalECount").textContent = totalE;
+      document.getElementById("osakaECount").textContent = osakaE;
+      document.getElementById("diffCount").textContent = totalE - osakaE;
+      document.getElementById("eStatsResult").classList.remove("hidden");
+    };
+  
+    reader.readAsArrayBuffer(file);
+  }
+  
