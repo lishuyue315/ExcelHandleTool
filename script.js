@@ -141,15 +141,15 @@ function processFile() {
       let shigaE = 0;
   
       for (const row of json) {
-        const airwayNo = String(row["HOUSE AIR WAYBILL NO."] || "").trim();
-        const address = String(row["輸入者住所"] || "").trim();
+        const airwayNo = String(row["HAWB番号"] || "").trim();
+        const address = String(row["收件人地址"] || "").trim();
   
         if (airwayNo.startsWith("E")) {
           totalE++;
-          if (address.startsWith("Osaka")) {
+          if (address.startsWith("大阪府")) {
             osakaE++;
           }
-          if (address.startsWith("Shiga ken")) {
+          if (address.startsWith("滋賀県")) {
             shigaE++;
           }
         }
