@@ -7,80 +7,61 @@
   <script src="script.js" defer></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
+  <div class="flex flex-col md:flex-row gap-6 w-full max-w-6xl items-start">
+    
+    <!-- 卡片1：县・町 处理 -->
+    <div class="flex-1 bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center max-w-xl">
+      <img src="./avatar.jpeg" alt="avatar" class="w-20 h-20 rounded-full shadow-md border-4 border-indigo-300 mb-4">
+      <h1 class="text-xl font-bold text-indigo-700 mb-2">坊ちゃんの熾天使の香炉</h1>
+      <p class="text-gray-600 text-sm text-center">Excelで県・町データを処理して、新しい分析ファイルを生成します。</p>
 
-  <div class="flex flex-col lg:flex-row items-center justify-center gap-8 w-full max-w-6xl">
+      <div class="mt-6 w-full">
+        <input type="file" id="fileInput" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+          file:rounded-full file:border-0 file:text-sm file:font-semibold
+          file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+      </div>
 
-  <!-- Header -->
-  <div class="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md text-center">
-    <div class="flex flex-col items-center space-y-4">
-      <!-- Avatar -->
-      <img src="./avatar.jpeg" alt="avatar" class="w-24 h-24 rounded-full shadow-md border-4 border-indigo-300">
-      <!-- Title -->
-      <h1 class="text-2xl font-bold text-indigo-700">坊ちゃんの熾天使の香炉</h1>
-      <p class="text-gray-600">Excelで県・町データを処理して、新しい分析ファイルを生成します。</p>
-    </div>
-
-    <!-- Upload Area -->
-    <div class="mt-6">
-      <input type="file" id="fileInput" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-        file:rounded-full file:border-0 file:text-sm file:font-semibold
-        file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
-    </div>
-
-    <!-- Button -->
-    <div class="mt-4">
-      <button onclick="processFile()" class="bg-indigo-600 text-white px-6 py-2 rounded-full shadow hover:bg-indigo-700 transition">
+      <button onclick="processFile()" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-full shadow hover:bg-indigo-700 transition">
         処理してダウンロード
       </button>
     </div>
+
+    <!-- 卡片2：E统计 -->
+    <div class="flex-1 bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center max-w-xl">
+      <img src="./jiushu.jpeg" alt="avatar" class="w-20 h-20 rounded-full shadow-md border-4 border-green-300 mb-4">
+      <h1 class="text-xl font-bold text-green-700 mb-2">ヤキモチちゃんのリデンプション</h1>
+      <p class="text-gray-600 text-sm text-center">MAWBごとにE始まりAWBと住所を集計するツール</p>
+
+      <div class="mt-6 w-full">
+        <input type="file" id="eStatsInput" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+          file:rounded-full file:border-0 file:text-sm file:font-semibold
+          file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
+      </div>
+
+      <button onclick="analyzeEStats()" class="mt-4 bg-green-600 text-white px-6 py-2 rounded-full shadow hover:bg-green-700 transition">
+        集計して表示
+      </button>
+
+      <!-- 结果表格 -->
+      <div id="eStatsResult" class="mt-6 hidden w-full overflow-x-auto">
+        <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
+          <thead class="bg-green-100 text-green-800">
+            <tr>
+              <th class="px-4 py-2 border">MAWB番号</th>
+              <th class="px-4 py-2 border">E開頭 件数</th>
+              <th class="px-4 py-2 border">大阪 件数</th>
+              <th class="px-4 py-2 border">滋賀 件数</th>
+              <th class="px-4 py-2 border">その以外</th>
+            </tr>
+          </thead>
+          <tbody id="eStatsTable" class="text-gray-700 divide-y divide-gray-200">
+            <!-- JS 填充 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-
-  <!-- 新功能：E開頭統計ツール -->
-  <!-- ヤキモチちゃんのリデンプション卡片 -->
-<div class="bg-white shadow-lg rounded-2xl p-6 w-full max-w-3xl text-center">
-  <div class="flex flex-col items-center space-y-4">
-    <!-- Avatar -->
-    <img src="./avatar.jpeg" alt="avatar" class="w-24 h-24 rounded-full shadow-md border-4 border-green-300">
-    <!-- Title -->
-    <h1 class="text-2xl font-bold text-green-700">ヤキモチちゃんのリデンプション</h1>
-    <p class="text-gray-600">MAWBごとにE始まりAWBと住所を集計するツール</p>
-  </div>
-
-  <!-- Upload Area -->
-  <div class="mt-6">
-    <input type="file" id="eStatsInput" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-      file:rounded-full file:border-0 file:text-sm file:font-semibold
-      file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
-  </div>
-
-  <!-- Execute Button -->
-  <div class="mt-4">
-    <button onclick="analyzeEStats()" class="bg-green-600 text-white px-6 py-2 rounded-full shadow hover:bg-green-700 transition font-semibold">
-      集計して表示
-    </button>
-  </div>
-
-  <!-- Result Area -->
-  <div id="eStatsResult" class="mt-6 hidden overflow-x-auto">
-    <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-      <thead class="bg-green-100 text-green-800">
-        <tr>
-          <th class="px-4 py-2 border">MAWB番号</th>
-          <th class="px-4 py-2 border">E開頭 件数</th>
-          <th class="px-4 py-2 border">大阪 件数</th>
-          <th class="px-4 py-2 border">滋賀 件数</th>
-          <th class="px-4 py-2 border">その以外</th>
-
-        </tr>
-      </thead>
-      <tbody id="eStatsTable" class="text-gray-700">
-        <!-- JS 填充结果 -->
-      </tbody>
-    </table>
-  </div>
-</div>
-</div>
-
 </body>
+
 </html>

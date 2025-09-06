@@ -168,19 +168,48 @@ function analyzeEStats() {
     // 清空旧结果
     tableBody.innerHTML = "";
 
-    // 渲染表格
+    // 渲染每个 MAWB 的结果（竖列交替）
     Object.entries(stats).forEach(([mawb, values]) => {
       const diff = values.totalE - values.osakaE - values.shigaE;
       const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="px-4 py-2 border font-semibold text-green-700">${mawb}</td>
-        <td class="px-4 py-2 border text-center">${values.totalE}</td>
-        <td class="px-4 py-2 border text-center">${values.osakaE}</td>
-        <td class="px-4 py-2 border text-center">${values.shigaE}</td>
-        <td class="px-4 py-2 border text-center">${diff}</td>
-      `;
+      const rowValues = [ mawb, values.totalE, values.osakaE, values.shigaE, diff ];
+
+      rowValues.forEach((val, colIndex) => {
+        const cell = document.createElement("td");
+        cell.className = `px-4 py-2 border text-center ${colIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}`;
+
+        if (colIndex === 0) {
+          cell.className += " font-semibold text-green-700 max-w-[200px] truncate";
+          cell.title = val;
+        }
+
+        cell.textContent = val;
+        row.appendChild(cell);
+      });
+
       tableBody.appendChild(row);
     });
+
+    // 统计总和
+    let totalE = 0, totalOsaka = 0, totalShiga = 0;
+    Object.values(stats).forEach(v => {
+      totalE += v.totalE;
+      totalOsaka += v.osakaE;
+      totalShiga += v.shigaE;
+    });
+    const totalDiff = totalE - totalOsaka - totalShiga;
+
+    // 添加合計行（放最下面）
+    const totalRow = document.createElement("tr");
+    const totalValues = [ "合計", totalE, totalOsaka, totalShiga, totalDiff ];
+    totalValues.forEach((val, colIndex) => {
+      const cell = document.createElement("td");
+      cell.className = `text-center px-4 py-2 border font-bold text-gray-800 ${colIndex % 2 === 0 ? "bg-gray-100" : "bg-gray-50"}`;
+      cell.textContent = val;
+      totalRow.appendChild(cell);
+    });
+    tableBody.appendChild(totalRow);
+
 
     resultDiv.classList.remove("hidden");
   };
