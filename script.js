@@ -124,44 +124,68 @@ function processFile() {
   reader.readAsArrayBuffer(file);
 }
 
-  function analyzeEStats() {
-    const input = document.getElementById("eStatsInput");
-    const file = input.files[0];
-    if (!file) return alert("ファイルを選択してください。");
-  
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" }); // header: true by default
-  
-      let totalE = 0;
-      let osakaE = 0;
-      let shigaE = 0;
-  
-      for (const row of json) {
-        const airwayNo = String(row["HAWB番号"] || "").trim();
-        const address = String(row["收件人地址"] || "").trim();
-  
-        if (airwayNo.startsWith("E")) {
-          totalE++;
-          if (address.startsWith("大阪府")) {
-            osakaE++;
-          }
-          if (address.startsWith("滋賀県")) {
-            shigaE++;
-          }
-        }
-      }
-  
-      // 填入结果
-      document.getElementById("totalECount").textContent = totalE;
-      document.getElementById("osakaECount").textContent = osakaE;
-      document.getElementById("shigaECount").textContent = shigaE;
-      document.getElementById("diffCount").textContent = totalE - osakaE - shigaE;
-      document.getElementById("eStatsResult").classList.remove("hidden");
-    };
-  
-    reader.readAsArrayBuffer(file);
+function analyzeEStats() {
+  const fileInput = document.getElementById("eStatsInput");
+  const resultDiv = document.getElementById("eStatsResult");
+  const tableBody = document.getElementById("eStatsTable");
+
+  if (!fileInput.files.length) {
+    alert("ファイルを選択してください！");
+    return;
   }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+    // 結果格納 { MAWB番号: { totalE, osakaE, shigaE } }
+    const stats = {};
+
+    jsonData.forEach(row => {
+      const mawb = row["MAWB番号"];
+      const hawb = row["HAWB番号"];
+      const addr = row["收件人地址"] || "";
+
+      if (!mawb) return;
+
+      if (!stats[mawb]) {
+        stats[mawb] = { totalE: 0, osakaE: 0, shigaE: 0 };
+      }
+
+      if (hawb && hawb.startsWith("E")) {
+        stats[mawb].totalE++;
+        if (addr.startsWith("大阪府")) stats[mawb].osakaE++;
+        if (addr.startsWith("滋賀県")) stats[mawb].shigaE++;
+      }
+    });
+
+    // 清空旧结果
+    tableBody.innerHTML = "";
+
+    // 渲染表格
+    Object.entries(stats).forEach(([mawb, values]) => {
+      const diff = values.totalE - values.osakaE - values.shigaE;
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="px-4 py-2 border font-semibold text-green-700">${mawb}</td>
+        <td class="px-4 py-2 border text-center">${values.totalE}</td>
+        <td class="px-4 py-2 border text-center">${values.osakaE}</td>
+        <td class="px-4 py-2 border text-center">${values.shigaE}</td>
+        <td class="px-4 py-2 border text-center">${diff}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    resultDiv.classList.remove("hidden");
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+  
