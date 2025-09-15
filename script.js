@@ -128,23 +128,35 @@ function analyzeEStats() {
   const fileInput = document.getElementById("eStatsInput");
   const resultDiv = document.getElementById("eStatsResult");
   const tableBody = document.getElementById("eStatsTable");
+  const placeholderImage = document.getElementById("placeholderImage");
+  const resetBtn = document.getElementById("resetEBtn");
+  const runBtn = document.getElementById("runEBtn");
 
   if (!fileInput.files.length) {
     alert("ファイルを選択してください！");
     return;
   }
 
+  // 隐藏占位图片并显示结果表格
+  placeholderImage.style.maxHeight = "0";
+  placeholderImage.style.opacity = "0";
+  
+  // 显示重置按钮
+  resetBtn.classList.remove("hidden");
+  runBtn.classList.add("hidden");
+
   const file = fileInput.files[0];
   const reader = new FileReader();
 
   reader.onload = function (e) {
+    // 原有的数据处理逻辑保持不变...
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, { type: "array" });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-    // 結果格納 { MAWB番号: { totalE, osakaE, shigaE } }
+    // 结果格納 { MAWB番号: { totalE, osakaE, shigaE } }
     const stats = {};
 
     jsonData.forEach(row => {
@@ -210,11 +222,118 @@ function analyzeEStats() {
     });
     tableBody.appendChild(totalRow);
 
-
-    resultDiv.classList.remove("hidden");
+    // 显示结果表格（带动画）
+    setTimeout(() => {
+      resultDiv.style.maxHeight = "1000px";
+      resultDiv.style.opacity = "1";
+    }, 300);
   };
 
   reader.readAsArrayBuffer(file);
 }
 
+// 添加重置函数
+function resetEView() {
+  const resultDiv = document.getElementById("eStatsResult");
+  const placeholderImage = document.getElementById("placeholderImage");
+  const resetBtn = document.getElementById("resetEBtn");
+  const runBtn = document.getElementById("runEBtn");
+
+  // 隐藏结果表格
+  resultDiv.style.maxHeight = "0";
+  resultDiv.style.opacity = "0";
   
+  // 显示重置按钮
+  resetBtn.classList.add("hidden");
+  runBtn.classList.remove("hidden");
+
+  // 显示占位图片
+  setTimeout(() => {
+    placeholderImage.style.maxHeight = "18rem";
+    placeholderImage.style.opacity = "1";
+  }, 300);
+}
+
+  
+async function processMapping() {
+  const mappingFileInput = document.getElementById("mappingFile");
+  const targetFileInput = document.getElementById("targetFile");
+
+  if (!mappingFileInput.files[0] || !targetFileInput.files[0]) {
+    alert("請上傳文件1和文件2！");
+    return;
+  }
+
+  // 1) 讀取 mapping 文件（文件1）
+  const mappingBuf = await mappingFileInput.files[0].arrayBuffer();
+  const mappingWb = XLSX.read(mappingBuf);
+  const mappingSheet = mappingWb.Sheets[mappingWb.SheetNames[0]];
+  const mappingAoa = XLSX.utils.sheet_to_json(mappingSheet, { header: 1, defval: "" });
+
+  // 建立映射 Map：把 B 列 (index 1) -> A 列 (index 0)
+  const mappingMap = new Map();
+  mappingAoa.forEach((row, i) => {
+    const key = row[1] !== undefined && row[1] !== null ? String(row[1]).trim() : "";
+    const val = row[0] !== undefined && row[0] !== null ? row[0] : "";
+    if (key !== "") mappingMap.set(key, val);
+  });
+  console.log("mappingMap size:", mappingMap.size);
+
+  // 2) 讀取 target 文件（文件2） - 直接操作 worksheet
+  const targetBuf = await targetFileInput.files[0].arrayBuffer();
+  const targetWb = XLSX.read(targetBuf);
+  const sheetName = targetWb.SheetNames[0];
+  const ws = targetWb.Sheets[sheetName];
+
+  // 确保有 !ref
+  if (!ws || !ws['!ref']) {
+    alert("目标工作表缺少数据或无法读取！");
+    return;
+  }
+
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  console.log("原始范围:", range);
+
+  const startRow = range.s.r; 
+  const endRow = range.e.r;
+
+  // 逐行读取 G 列（c = 6），写到 A 列（c = 0）
+  for (let R = startRow; R <= endRow; R++) {
+    const gAddr = XLSX.utils.encode_cell({ r: R, c: 6 }); // G列 index 6
+    const gCell = ws[gAddr];
+    const key = gCell && gCell.v !== undefined && gCell.v !== null ? String(gCell.v).trim() : "";
+
+    if (!key) continue; // 没 key 就跳过
+
+    if (mappingMap.has(key)) {
+      const mappedVal = mappingMap.get(key);
+
+      const aAddr = XLSX.utils.encode_cell({ r: R, c: 0 }); // A列 index 0
+      // 判断类型：若是数字则写数字，否则写字符串
+      if (mappedVal !== null && mappedVal !== undefined && mappedVal !== "" && !isNaN(mappedVal) && typeof mappedVal !== "string") {
+        ws[aAddr] = { t: "n", v: Number(mappedVal) };
+      } else if (mappedVal !== null && mappedVal !== undefined && !isNaN(String(mappedVal)) && String(mappedVal).trim() !== "") {
+        // 当映射值是字符串但可以转成数字，也写成数字
+        const maybeNum = Number(String(mappedVal).trim());
+        if (!Number.isNaN(maybeNum)) {
+          ws[aAddr] = { t: "n", v: maybeNum };
+        } else {
+          ws[aAddr] = { t: "s", v: String(mappedVal) };
+        }
+      } else {
+        ws[aAddr] = { t: "s", v: String(mappedVal === undefined ? "" : mappedVal) };
+      }
+    }
+  }
+
+  // 3) 更新 !ref，确保 A 列被包含（如果原来 !ref 的起始列 > 0）
+  const newMinC = Math.min(range.s.c, 0);
+  const newRange = { s: { r: range.s.r, c: newMinC }, e: { r: range.e.r, c: range.e.c } };
+  ws['!ref'] = XLSX.utils.encode_range(newRange);
+  console.log("更新後範圍:", ws['!ref']);
+
+  // 4) 导出：直接把修改过的 worksheet 写回到新的 workbook 并下载
+  const outWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(outWb, ws, sheetName);
+  XLSX.writeFile(outWb, "mapped_result.xlsx");
+}
