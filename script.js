@@ -337,3 +337,115 @@ async function processMapping() {
   XLSX.utils.book_append_sheet(outWb, ws, sheetName);
   XLSX.writeFile(outWb, "mapped_result.xlsx");
 }
+
+async function buildCodesFromSheet2() {
+  const fileInput = document.getElementById("dedupFile");
+  const prefixInput = document.getElementById("codePrefix");
+  const resultDiv = document.getElementById("dedupResult");
+  const tableBody = document.getElementById("dedupTable");
+  const placeholder = document.getElementById("dedupPlaceholder");
+  const resetBtn = document.getElementById("resetDedupBtn");
+  const runBtn = document.getElementById("runDedupBtn");
+  const meta = document.getElementById("dedupMeta");
+
+  if (!fileInput.files.length) {
+    alert("ファイルを選択してください！");
+    return;
+  }
+
+  const prefixRaw = (prefixInput.value || "").trim();
+  if (!/^\d+$/.test(prefixRaw)) {
+    alert("前缀请输入纯数字（例：23）");
+    return;
+  }
+
+  // UI 切换
+  placeholder.classList.add("hidden");
+  resetBtn.classList.remove("hidden");
+  runBtn.classList.add("hidden");
+
+  // 读取 Excel
+  const buf = await fileInput.files[0].arrayBuffer();
+  const wb = XLSX.read(buf, { type: "array" });
+
+  // 选择工作表：
+  // 1) 如果只有一个表，直接用它；
+  // 2) 如果有多个表，挑选 H 列（索引7）非空值最多的那个
+  const H_INDEX = 7;
+  let chosenSheet = null;
+  let maxHCount = -1;
+
+  wb.SheetNames.forEach(name => {
+    const ws = wb.Sheets[name];
+    if (!ws || !ws['!ref']) return;
+    const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+    let count = 0;
+    for (let r = 0; r < aoa.length; r++) {
+      const v = aoa[r] && aoa[r][H_INDEX] != null ? String(aoa[r][H_INDEX]).trim() : "";
+      if (v !== "") count++;
+    }
+    if (count > maxHCount) {
+      maxHCount = count;
+      chosenSheet = ws;
+    }
+  });
+
+  // 兜底：实在没选到，就用第一个
+  if (!chosenSheet) chosenSheet = wb.Sheets[wb.SheetNames[0]];
+  if (!chosenSheet || !chosenSheet['!ref']) {
+    alert("无法读取工作表数据，请检查文件内容。");
+    resetBtn.classList.add("hidden");
+    runBtn.classList.remove("hidden");
+    placeholder.classList.remove("hidden");
+    return;
+  }
+
+  // 读取 H 列数据
+  const aoa = XLSX.utils.sheet_to_json(chosenSheet, { header: 1, defval: "" });
+  const values = [];
+  for (let r = 0; r < aoa.length; r++) {
+    const cellVal = aoa[r] && aoa[r][H_INDEX] != null ? String(aoa[r][H_INDEX]).trim() : "";
+    if (cellVal !== "") values.push(cellVal);
+  }
+
+  // 去重（保持首次出现顺序）
+  const seen = new Set();
+  const uniqueList = [];
+  for (const v of values) {
+    if (!seen.has(v)) {
+      seen.add(v);
+      uniqueList.push(v);
+    }
+  }
+
+  // 序号位宽：至少2位
+  const width = Math.max(2, String(uniqueList.length).length);
+
+  // 渲染表格
+  tableBody.innerHTML = "";
+  uniqueList.forEach((val, idx) => {
+    const serial = String(idx + 1).padStart(width, "0");
+    const code = `${prefixRaw}-${serial}`;
+
+    const tr = document.createElement("tr");
+    const cells = [code, val];
+
+    cells.forEach((c, i) => {
+      const td = document.createElement("td");
+      td.className = `px-4 py-2 border text-center ${i % 2 === 0 ? "bg-gray-50" : "bg-white"}`;
+      if (i === 1) td.className += " text-left";
+      td.textContent = c;
+      tr.appendChild(td);
+    });
+
+    tableBody.appendChild(tr);
+  });
+
+  meta.textContent = `去重总数：${uniqueList.length}　|　编号位数：${width}　|　前缀：${prefixRaw}`;
+
+  // 显示结果（固定高度 + 可滚动），柔和淡入
+  resultDiv.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    resultDiv.style.opacity = "1";
+  });
+}

@@ -14,7 +14,7 @@
     <p class="text-gray-500 mt-2">君と共に在れ</p>
   </header>
 
-  <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-8">
+  <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[350px_480px_1fr] gap-8 items-start [--col-h:560px]">
     
     <!-- 左边竖排 -->
     <div class="flex flex-col gap-6">
@@ -99,11 +99,14 @@
         </button>
       </div>
 
-      <!-- 占位图片区（初始显示，用来占高度） -->
-      <div id="placeholderImage" class="mt-6 overflow-hidden transition-all duration-700 ease-in-out" style="max-height:18rem; opacity:1;">
-        <!-- 图片不要超过卡片宽度，用 mx-auto 居中 -->
-        <img src="./zenyin.jpg" alt="placeholder" class="mx-auto w-full object-cover rounded-xl shadow-md">
+      <!-- 占位图片区（等比+铺满+圆角统一） -->
+      <div id="placeholderImage" class="mt-6">
+        <div class="relative w-full rounded-xl overflow-hidden aspect-[16/9] shadow-md">
+          <img src="./zenyin.jpg" alt="placeholder"
+              class="absolute inset-0 w-full h-full object-cover" />
+        </div>
       </div>
+
 
       <!-- 结果表格（初始隐藏：max-height=0, opacity=0） -->
       <div id="eStatsResult" class="mt-6 overflow-x-auto transition-all duration-700" style="max-height:0; opacity:0; overflow:hidden;">
@@ -127,6 +130,63 @@
     </div>
   </section>
 
+    <!-- 右列：窃法之刃（整列撑满；加入 placeholder；内部滚动） -->
+    <section class="h-full bg-white shadow-lg rounded-2xl p-6 flex flex-col">
+      <div class="shrink-0 flex items-center gap-4 mb-4">
+        <img src="./images.jpeg" alt="avatar" class="w-16 h-16 rounded-full shadow-md border-4 border-indigo-300">
+        <div>
+          <h2 class="text-xl font-bold text-indigo-700">窃法之刃</h2>
+          <p class="text-gray-600 text-sm">H 列を去重して、前缀 + 01/02/… を生成して表示</p>
+        </div>
+      </div>
+
+      <div class="shrink-0">
+        <input type="file" id="dedupFile" class="block w-full text-sm text-gray-500 mb-4
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-full file:border-0 file:text-sm file:font-semibold
+          file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+
+        <label class="block text-sm font-medium text-gray-700 mb-2">前缀数字</label>
+        <input type="text" id="codePrefix" inputmode="numeric" pattern="[0-9]*" placeholder="例：23"
+          class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+
+        <div class="flex gap-3 mt-3">
+          <button id="runDedupBtn" onclick="buildCodesFromSheet2()"
+            class="flex-1 bg-indigo-600 text-white px-6 py-2 rounded-full shadow hover:bg-indigo-700 transition">
+            生成して表示
+          </button>
+          <button id="resetDedupBtn" onclick="resetDedupView()"
+            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full shadow hover:bg-gray-300 transition hidden">
+            リセット
+          </button>
+        </div>
+      </div>
+
+    <!-- 右侧占位图（等比+铺满+圆角统一） -->
+      <div id="dedupPlaceholder" class="mt-6">
+        <div class="relative w-full rounded-xl overflow-hidden aspect-[16/9] shadow-md">
+          <img src="./Lulu_1 (1).jpg" alt="placeholder"
+              class="absolute inset-0 w-full h-full object-cover" />
+        </div>
+      </div>
+
+
+        <!-- 结果表格（固定高度内滚） -->
+        <div id="dedupResult" class="mt-4 transition-opacity duration-700 ease-in-out opacity-0 hidden">
+          <div class="max-h-[60vh] overflow-y-auto">
+            <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
+              <thead class="bg-indigo-100 text-indigo-800 sticky top-0">
+                <tr>
+                  <th class="px-4 py-2 border">生成コード</th>
+                  <th class="px-4 py-2 border">H 列（去重值）</th>
+                </tr>
+              </thead>
+              <tbody id="dedupTable" class="text-gray-700"></tbody>
+            </table>
+            <div id="dedupMeta" class="text-xs text-gray-500 mt-2 text-center"></div>
+          </div>
+        </div>
+    </section>
   </main>
 </body>
 </html>
