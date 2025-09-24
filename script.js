@@ -341,6 +341,7 @@ async function processMapping() {
 async function buildCodesFromSheet2() {
   const fileInput = document.getElementById("dedupFile");
   const prefixInput = document.getElementById("codePrefix");
+  const suffixInput = document.getElementById("codeSuffix");
   const resultDiv = document.getElementById("dedupResult");
   const tableBody = document.getElementById("dedupTable");
   const placeholder = document.getElementById("dedupPlaceholder");
@@ -354,10 +355,7 @@ async function buildCodesFromSheet2() {
   }
 
   const prefixRaw = (prefixInput.value || "").trim();
-  if (!/^\d+$/.test(prefixRaw)) {
-    alert("前缀请输入纯数字（例：23）");
-    return;
-  }
+  const suffixRaw = (suffixInput.value || "").trim();
 
   // UI 切换
   placeholder.classList.add("hidden");
@@ -390,7 +388,6 @@ async function buildCodesFromSheet2() {
     }
   });
 
-  // 兜底：实在没选到，就用第一个
   if (!chosenSheet) chosenSheet = wb.Sheets[wb.SheetNames[0]];
   if (!chosenSheet || !chosenSheet['!ref']) {
     alert("无法读取工作表数据，请检查文件内容。");
@@ -425,7 +422,16 @@ async function buildCodesFromSheet2() {
   tableBody.innerHTML = "";
   uniqueList.forEach((val, idx) => {
     const serial = String(idx + 1).padStart(width, "0");
-    const code = `${prefixRaw}-${serial}`;
+    let code = "";
+
+    if(prefixRaw) {
+      code = `${prefixRaw}-${serial}`;
+    } else {
+      code = serial;
+    }
+    if(suffixRaw) {
+      code = `${code}-${suffixRaw}`;
+    };
 
     const tr = document.createElement("tr");
     const cells = [code, val];
@@ -443,7 +449,6 @@ async function buildCodesFromSheet2() {
 
   meta.textContent = `去重总数：${uniqueList.length}　|　编号位数：${width}　|　前缀：${prefixRaw}`;
 
-  // 显示结果（固定高度 + 可滚动），柔和淡入
   resultDiv.classList.remove("hidden");
   requestAnimationFrame(() => {
     resultDiv.style.opacity = "1";

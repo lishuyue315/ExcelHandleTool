@@ -75,7 +75,7 @@
     </div>
 
     <!-- 右边：ヤキモチ -->
-  <section class="bg-white shadow-lg rounded-2xl p-6">
+  <section class="bg-white shadow-lg rounded-2xl p-6 h-[576px]">
     <div class="mx-auto">
       <div class="flex items-center gap-4 mb-4">
         <img src="./jiushu.jpeg" alt="avatar" class="w-16 h-16 rounded-full shadow-md border-4 border-green-300">
@@ -101,7 +101,7 @@
 
       <!-- 占位图片区（等比+铺满+圆角统一） -->
       <div id="placeholderImage" class="mt-6">
-        <div class="relative w-full rounded-xl overflow-hidden aspect-[16/9] shadow-md">
+        <div class="relative w-full rounded-xl overflow-hidden aspect-[16/12] shadow-md">
           <img src="./zenyin.jpg" alt="placeholder"
               class="absolute inset-0 w-full h-full object-cover" />
         </div>
@@ -136,7 +136,7 @@
         <img src="./images.jpeg" alt="avatar" class="w-16 h-16 rounded-full shadow-md border-4 border-indigo-300">
         <div>
           <h2 class="text-xl font-bold text-indigo-700">窃法之刃</h2>
-          <p class="text-gray-600 text-sm">H 列を去重して、前缀 + 01/02/… を生成して表示</p>
+          <p class="text-gray-600 text-sm">Code Generator</p>
         </div>
       </div>
 
@@ -145,11 +145,23 @@
           file:mr-4 file:py-2 file:px-4
           file:rounded-full file:border-0 file:text-sm file:font-semibold
           file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+        
+        <div class="flex gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">前缀数字</label>
+            <input type="text" id="codePrefix" inputmode="numeric" pattern="[0-9]*" placeholder="例：23"
+              class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+    
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">后缀数字</label>
+            <input type="text" id="codeSuffix" inputmode="numeric" pattern="[0-9]*" placeholder="例：23"
+                class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+          </div>
 
-        <label class="block text-sm font-medium text-gray-700 mb-2">前缀数字</label>
-        <input type="text" id="codePrefix" inputmode="numeric" pattern="[0-9]*" placeholder="例：23"
-          class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+        </div>
 
+       
         <div class="flex gap-3 mt-3">
           <button id="runDedupBtn" onclick="buildCodesFromSheet2()"
             class="flex-1 bg-indigo-600 text-white px-6 py-2 rounded-full shadow hover:bg-indigo-700 transition">
@@ -164,7 +176,7 @@
 
     <!-- 右侧占位图（等比+铺满+圆角统一） -->
       <div id="dedupPlaceholder" class="mt-6">
-        <div class="relative w-full rounded-xl overflow-hidden aspect-[16/9] shadow-md">
+        <div class="relative w-full rounded-xl overflow-hidden aspect-[16/11] shadow-md">
           <img src="./Lulu_1 (1).jpg" alt="placeholder"
               class="absolute inset-0 w-full h-full object-cover" />
         </div>
