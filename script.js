@@ -347,6 +347,8 @@ async function buildCodesFromSheet2() {
   const placeholder = document.getElementById("dedupPlaceholder");
   const resetBtn = document.getElementById("resetDedupBtn");
   const runBtn = document.getElementById("runDedupBtn");
+  const copyBtn = document.getElementById("copyDedupBtn");
+
   const meta = document.getElementById("dedupMeta");
 
   if (!fileInput.files.length) {
@@ -360,7 +362,9 @@ async function buildCodesFromSheet2() {
   // UI 切换
   placeholder.classList.add("hidden");
   resetBtn.classList.remove("hidden");
+  copyBtn.classList.remove("hidden");
   runBtn.classList.add("hidden");
+  
 
   // 读取 Excel
   const buf = await fileInput.files[0].arrayBuffer();
@@ -447,7 +451,7 @@ async function buildCodesFromSheet2() {
     tableBody.appendChild(tr);
   });
 
-  meta.textContent = `去重总数：${uniqueList.length}　|　编号位数：${width}　|　前缀：${prefixRaw}`;
+  meta.textContent = `编号位数：${width}　|　前缀：${prefixRaw} ｜ 后缀：${suffixRaw}`;
 
   resultDiv.classList.remove("hidden");
   requestAnimationFrame(() => {
@@ -460,6 +464,9 @@ function resetDedupView() {
   const placeholder = document.getElementById("dedupPlaceholder");
   const resetBtn = document.getElementById("resetDedupBtn");
   const runBtn = document.getElementById("runDedupBtn");
+  const copyBtn = document.getElementById("copyDedupBtn");
+
+
 
   // 渐隐结果表格
   resultDiv.style.opacity = "0";
@@ -469,6 +476,8 @@ function resetDedupView() {
     // 隐藏重置按钮，恢复运行按钮
     resetBtn.classList.add("hidden");
     runBtn.classList.remove("hidden");
+    copyBtn.classList.add("hidden");
+
 
     // 渐显占位图
     placeholder.classList.remove("hidden");
@@ -478,4 +487,42 @@ function resetDedupView() {
       placeholder.style.opacity = "1";
     });
   }, 500); // 和 transition 时间保持一致
+}
+
+async function copyDedupToClipboard() {
+  const tableBody = document.getElementById("dedupTable");
+  const rows = Array.from(tableBody.querySelectorAll("tr"));
+  if (rows.length === 0) {
+    alert("没有可复制的数据，请先生成结果。");
+    return;
+  }
+
+  const lines = [];
+
+  for (const tr of rows) {
+    const tds = tr.querySelectorAll("td");
+    if (tds.length < 2) continue;
+
+    let col1 = (tds[0].textContent || "").trim();
+    let col2 = (tds[1].textContent || "").trim();
+
+    lines.push(`${col1}\t${col2}`);
+  }
+
+  if (lines.length === 0) {
+    alert("没有可复制的数据行。");
+    return;
+  }
+
+  const tsv = lines.join("\n");
+  try {
+    await navigator.clipboard.writeText(tsv);
+    const btn = document.getElementById("copyDedupBtn");
+    const old = btn.textContent;
+    btn.textContent = "已复制到剪贴板";
+    setTimeout(() => (btn.textContent = old), 1200);
+  } catch (e) {
+    console.error(e);
+    alert("复制失败：浏览器可能不支持或权限被拒绝。");
+  }
 }

@@ -130,7 +130,7 @@
     </div>
   </section>
 
-    <!-- 右列：窃法之刃（整列撑满；加入 placeholder；内部滚动） -->
+    <!-- 右列：艾黎 -->
     <section class="h-full bg-white shadow-lg rounded-2xl p-6 flex flex-col">
       <div class="shrink-0 flex items-center gap-4 mb-4">
         <img src="./aili.png" alt="avatar" class="w-16 h-16 rounded-full shadow-md border-4 border-indigo-300">
@@ -167,6 +167,11 @@
             class="flex-1 bg-indigo-600 text-white px-6 py-2 rounded-full shadow hover:bg-indigo-700 transition">
             生成して表示
           </button>
+          <button id="copyDedupBtn" onclick="copyDedupToClipboard()"
+            class="bg-white border border-indigo-300 text-indigo-700 px-4 py-2 rounded-full shadow hover:bg-indigo-50 transition hidden">
+            复制結果
+          </button>
+
           <button id="resetDedupBtn" onclick="resetDedupView()"
             class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full shadow hover:bg-gray-300 transition hidden">
             リセット
