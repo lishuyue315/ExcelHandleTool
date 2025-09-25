@@ -454,3 +454,28 @@ async function buildCodesFromSheet2() {
     resultDiv.style.opacity = "1";
   });
 }
+
+function resetDedupView() {
+  const resultDiv = document.getElementById("dedupResult");
+  const placeholder = document.getElementById("dedupPlaceholder");
+  const resetBtn = document.getElementById("resetDedupBtn");
+  const runBtn = document.getElementById("runDedupBtn");
+
+  // 渐隐结果表格
+  resultDiv.style.opacity = "0";
+
+  setTimeout(() => {
+    resultDiv.classList.add("hidden");
+    // 隐藏重置按钮，恢复运行按钮
+    resetBtn.classList.add("hidden");
+    runBtn.classList.remove("hidden");
+
+    // 渐显占位图
+    placeholder.classList.remove("hidden");
+    placeholder.style.opacity = "0";
+    requestAnimationFrame(() => {
+      placeholder.style.transition = "opacity 0.5s ease";
+      placeholder.style.opacity = "1";
+    });
+  }, 500); // 和 transition 时间保持一致
+}
